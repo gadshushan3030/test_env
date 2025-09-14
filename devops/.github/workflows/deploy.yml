@@ -1,0 +1,63 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: us-central1
+  ENVIRONMENT: dev
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ env.PROJECT_ID }}
+
+    - name: Configure Docker to use gcloud as a credential helper
+      run: |
+        gcloud auth configure-docker
+
+    - name: Build and push API Gateway image
+      run: |
+        cd backend/gateway
+        docker build -t gcr.io/${{ env.PROJECT_ID }}/api-gateway:${{ github.sha }} .
+        docker push gcr.io/${{ env.PROJECT_ID }}/api-gateway:${{ github.sha }}
+        docker tag gcr.io/${{ env.PROJECT_ID }}/api-gateway:${{ github.sha }} gcr.io/${{ env.PROJECT_ID }}/api-gateway:latest
+        docker push gcr.io/${{ env.PROJECT_ID }}/api-gateway:latest
+
+    - name: Build and push User Manager image
+      run: |
+        cd backend/user-manager
+        docker build -t gcr.io/${{ env.PROJECT_ID }}/user-manager:${{ github.sha }} .
+        docker push gcr.io/${{ env.PROJECT_ID }}/user-manager:${{ github.sha }}
+        docker tag gcr.io/${{ env.PROJECT_ID }}/user-manager:${{ github.sha }} gcr.io/${{ env.PROJECT_ID }}/user-manager:latest
+        docker push gcr.io/${{ env.PROJECT_ID }}/user-manager:latest
+
+    - name: Deploy with Terraform
+      run: |
+        cd devops/terraform
+        terraform init
+        terraform plan -var="project_id=${{ env.PROJECT_ID }}" -var="region=${{ env.REGION }}" -var="environment=${{ env.ENVIRONMENT }}"
+        terraform apply -auto-approve -var="project_id=${{ env.PROJECT_ID }}" -var="region=${{ env.REGION }}" -var="environment=${{ env.ENVIRONMENT }}"
+
+    - name: Run tests
+      run: |
+        # Add your tests here
+        echo "Running tests..."
+
+    - name: Output deployment URLs
+      run: |
+        echo "API Gateway URL: $(terraform -chdir=devops/terraform output -raw api_gateway_url)"
+        echo "User Manager URL: $(terraform -chdir=devops/terraform output -raw user_manager_url)"

@@ -1,0 +1,13 @@
+# Copy this file to terraform.tfvars and fill in your values
+
+project_id = "your-gcp-project-id"
+region     = "us-central1"
+environment = "dev"
+
+# Firebase Service Account credentials
+# Get these from Firebase Console > Project Settings > Service Accounts
+firebase_private_key_id     = "your-firebase-private-key-id"
+firebase_private_key        = "-----BEGIN PRIVATE KEY-----\nyour-firebase-private-key\n-----END PRIVATE KEY-----\n"
+firebase_client_email       = "your-firebase-client-email@your-project.iam.gserviceaccount.com"
+firebase_client_id          = "your-firebase-client-id"
+firebase_client_x509_cert_url = "https://www.googleapis.com/robot/v1/metadata/x509/your-firebase-client-email%40your-project.iam.gserviceaccount.com"
