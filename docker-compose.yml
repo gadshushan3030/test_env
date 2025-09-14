@@ -1,6 +1,15 @@
-version: '3.8'
-
 services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+    depends_on:
+      - api-gateway
+    networks:
+      - microservices
+
   api-gateway:
     build: ./backend/gateway
     ports:
@@ -23,6 +32,9 @@ services:
       - FIREBASE_CLIENT_EMAIL=${FIREBASE_CLIENT_EMAIL}
       - FIREBASE_CLIENT_ID=${FIREBASE_CLIENT_ID}
       - FIREBASE_CLIENT_X509_CERT_URL=${FIREBASE_CLIENT_X509_CERT_URL}
+      - FIREBASE_KEY_PATH=${FIREBASE_KEY_PATH}
+    volumes:
+      - ./firebase-key.json:/app/firebase-key.json:ro
     networks:
       - microservices
 

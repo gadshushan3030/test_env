@@ -5,6 +5,14 @@
 ## מבנה הפרויקט
 
 ```
+├── frontend/              # React Frontend
+│   ├── src/
+│   │   ├── components/    # React Components
+│   │   ├── App.js
+│   │   └── api.js
+│   ├── public/
+│   ├── Dockerfile
+│   └── nginx.conf
 ├── backend/
 │   ├── gateway/           # API Gateway (External)
 │   │   ├── main.py
@@ -27,13 +35,19 @@
 
 ## שירותים
 
-### 1. API Gateway (External)
+### 1. Frontend (React)
+- **Port**: 3000
+- **תפקיד**: ממשק משתמש עם הרשמה והתחברות
+- **גישה**: ציבורית
+- **טכנולוגיות**: React, Axios, React Hook Form
+
+### 2. API Gateway (External)
 - **Port**: 8000
 - **תפקיד**: Gateway חיצוני שמנתב בקשות למיקרו-שירותים
 - **גישה**: ציבורית
 - **טכנולוגיות**: FastAPI, httpx
 
-### 2. User Manager (Internal)
+### 3. User Manager (Internal)
 - **Port**: 8001
 - **תפקיד**: ניהול משתמשים עם Firebase
 - **גישה**: פנימית בלבד
@@ -68,9 +82,10 @@ docker-compose up --build
 ```
 
 ### 3. בדיקת השירותים
-- API Gateway: http://localhost:8000
-- User Manager: http://localhost:8001
-- API Documentation: http://localhost:8000/docs
+- **Frontend**: http://localhost:3000
+- **API Gateway**: http://localhost:8000
+- **User Manager**: http://localhost:8001
+- **API Documentation**: http://localhost:8000/docs
 
 ## פריסה ל-Cloud Run
 
